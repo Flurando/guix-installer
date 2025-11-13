@@ -28,6 +28,7 @@
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages mtools)
+  #:use-module (gnu packages package-management)
   #:use-module (gnu packages wget)
   #:use-module (gnu services)
   #:use-module (gnu services base)
