@@ -23,6 +23,7 @@
 (define-module (nongnu system install)
   #:use-module (guix)
   #:use-module (guix channels)
+  #:use-module (guix inferior)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages curl)
   #:use-module (gnu packages emacs)
