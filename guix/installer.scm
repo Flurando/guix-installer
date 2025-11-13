@@ -59,37 +59,61 @@
 
 (define installation-os-nonfree
   (operating-system
-    (inherit installation-os)
-    (kernel linux-lts)
-    (firmware (list linux-firmware))
+   (inherit installation-os)
+   ;; we must pin kernel to an older version, because GitHub Runner does not have the resource to compile the newest linux kernel itself
+   (kernel
+    (let*
+        ((channels
+          (list (channel
+                 (name 'nonguix)
+                 (url "https://gitlab.com/nonguix/nonguix")
+                 (commit "ba6ce23e785d1ccd9194202d8f27f6db4b649170")
+		 (introduction
+		  (make-channel-introduction
+		   "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
+		   (openpgp-fingerprint
+		    "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
+                (channel
+                 (name 'guix)
+                 (url "https://git.savannah.gnu.org/git/guix.git")
+                 (commit "a1cdcd2cabb59e731349b13777a044b48ef4f844")
+		 (introduction
+		  (make-channel-introduction
+		   "9edb3f66fd807b096b48283debdcddccfea34bad"
+		   (openpgp-fingerprint
+		    "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA"))))))
+         (inferior
+          (inferior-for-channels channels)))
+      (first (lookup-inferior-packages inferior "linux" "6.17.7"))))
+   (firmware (list linux-firmware))
 
-    ;; Add the 'net.ifnames' argument to prevent network interfaces
-    ;; from having really long names.  This can cause an issue with
-    ;; wpa_supplicant when you try to connect to a wifi network.
-    (kernel-arguments '("quiet" "modprobe.blacklist=radeon" "net.ifnames=0"))
+   ;; Add the 'net.ifnames' argument to prevent network interfaces
+   ;; from having really long names.  This can cause an issue with
+   ;; wpa_supplicant when you try to connect to a wifi network.
+   (kernel-arguments '("quiet" "modprobe.blacklist=radeon" "net.ifnames=0"))
 
-    (services
-     (cons*
-      ;; Include the channel file so that it can be used during installation
-      (simple-service 'channel-file etc-service-type
-                      (list `("channels.scm" ,(local-file "channels.scm"))))
+   (services
+    (cons*
+     ;; Include the channel file so that it can be used during installation
+     (simple-service 'channel-file etc-service-type
+                     (list `("channels.scm" ,(local-file "channels.scm"))))
 
-      (modify-services (operating-system-user-services installation-os)
-        (guix-service-type
-         config => (guix-configuration
-                    (inherit config)
-                    (guix (guix-for-channels %channels))
-                    (authorized-keys
-                     (cons* %signing-key
-                            %default-authorized-guix-keys))
-                    (substitute-urls
-                     `(,@%default-substitute-urls
-                       "https://substitutes.nonguix.org"))
-                    (channels %channels))))))
+     (modify-services (operating-system-user-services installation-os)
+		      (guix-service-type
+		       config => (guix-configuration
+				  (inherit config)
+				  (guix (guix-for-channels %channels))
+				  (authorized-keys
+				   (cons* %signing-key
+					  %default-authorized-guix-keys))
+				  (substitute-urls
+				   `(,@%default-substitute-urls
+				     "https://substitutes.nonguix.org"))
+				  (channels %channels))))))
 
-    ;; Add some extra packages useful for the installation process
-    (packages
-     (append (list git curl wget emacs-no-x)
-             (operating-system-packages installation-os)))))
+   ;; Add some extra packages useful for the installation process
+   (packages
+    (append (list git curl wget emacs-no-x)
+            (operating-system-packages installation-os)))))
 
 installation-os-nonfree
