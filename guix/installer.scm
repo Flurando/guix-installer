@@ -21,6 +21,7 @@
 ;; $ guix system image -t iso9660 installer.scm
 
 (define-module (nongnu system install)
+  #:use-module (srfi srfi-1)
   #:use-module (guix)
   #:use-module (guix channels)
   #:use-module (guix inferior)
