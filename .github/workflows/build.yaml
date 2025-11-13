@@ -70,6 +70,7 @@ jobs:
           export RELEASE_TAG=$(date +"%Y%m%d%H%M")
           echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
           cp $image ./guix-installer-$RELEASE_TAG.iso
+          split -b 1g ./guix-installer-$RELEASE_TAG.iso ./guix-installer-$RELEASE_TAG.iso.part_
       - uses: actions/cache/save@v3
         if: always()
         with:
@@ -81,6 +82,7 @@ jobs:
           echo $'This installer image was prepared with the following channel configuration:\r\n\r\n```\r\n' > release-notes.md
           cat ./guix/channels.scm >> release-notes.md
           echo $'\r\n```' >> release-notes.md
+          echo $'\r\nUsage:\r\ndownload all part files\r\nrun `cat guix-installer-$RELEASE_TAG.iso.part_* > guix-installer-$RELEASE_TAG.iso` to get the iso file\r\nThis is because GitHub does not allow files in release to exceed the limit of 2GB' >> release-notes.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -88,7 +90,7 @@ jobs:
           name: Guix Installer - ${{ env.RELEASE_TAG }}
           tag_name: v${{ env.RELEASE_TAG }}
           body_path: release-notes.md
-          files: guix-installer-${{ env.RELEASE_TAG }}.iso
+          files: guix-installer-${{ env.RELEASE_TAG }}.iso.part_*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: SystemCrafters/guix-installer
+          GITHUB_REPOSITORY: Flurando/guix-installer
