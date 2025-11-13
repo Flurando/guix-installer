@@ -5,10 +5,6 @@ on:
     branches:
       - master
 
-  schedule:
-    # build every week
-    - cron: "0 0 */7 * *"
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -28,7 +24,7 @@ jobs:
             guix-cache-
 
       - name: Install Guix
-        uses: PromyLOPh/guix-install-action@v1.5
+        uses: PromyLOPh/guix-install-action@v1.6
         with:
           channels: |
             (cons* (channel
