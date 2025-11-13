@@ -24,12 +24,11 @@
   #:use-module (guix)
   #:use-module (guix channels)
   #:use-module (gnu packages version-control)
-  #:use-module (gnu packages vim)
   #:use-module (gnu packages curl)
   #:use-module (gnu packages emacs)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages mtools)
-  #:use-module (gnu packages package-management)
+  #:use-module (gnu packages wget)
   #:use-module (gnu services)
   #:use-module (gnu services base)
   #:use-module (gnu system)
@@ -89,7 +88,7 @@
 
     ;; Add some extra packages useful for the installation process
     (packages
-     (append (list git curl stow vim emacs-no-x-toolkit)
+     (append (list git curl wget emacs-no-x)
              (operating-system-packages installation-os)))))
 
 installation-os-nonfree
