@@ -60,7 +60,7 @@
 (define installation-os-nonfree
   (operating-system
     (inherit installation-os)
-    (kernel linux)
+    (kernel linux-lts)
     (firmware (list linux-firmware))
 
     ;; Add the 'net.ifnames' argument to prevent network interfaces
