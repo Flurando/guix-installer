@@ -20,7 +20,7 @@
 ;; Generate a bootable image (e.g. for USB sticks, etc.) with:
 ;; $ guix system image -t iso9660 installer.scm
 
-(define-module (nongnu system install)
+(define-module (installer)
   #:use-module (srfi srfi-1)
   #:use-module (guix)
   #:use-module (guix channels)
@@ -37,6 +37,7 @@
   #:use-module (gnu system)
   #:use-module (gnu system install)
   #:use-module (nongnu packages linux)
+  #:use-module (base-channels)
   #:export (installation-os-nonfree))
 
 ;; https://substitutes.nonguix.org/signing-key.pub
@@ -47,46 +48,10 @@
   (curve Ed25519)
   (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
 
-(define %channels
-  (cons* (channel
-          (name 'nonguix)
-          (url "https://gitlab.com/nonguix/nonguix")
-          ;; Enable signature verification:
-          (introduction
-           (make-channel-introduction
-            "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
-            (openpgp-fingerprint
-             "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
-         %default-channels))
-
 (define installation-os-nonfree
   (operating-system
    (inherit installation-os)
-   ;; we must pin kernel to an older version, because GitHub Runner does not have the resource to compile the newest linux kernel itself
-   (kernel
-    (let*
-        ((channels
-          (list (channel
-                 (name 'nonguix)
-                 (url "https://gitlab.com/nonguix/nonguix")
-                 (commit "ba6ce23e785d1ccd9194202d8f27f6db4b649170")
-		 (introduction
-		  (make-channel-introduction
-		   "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
-		   (openpgp-fingerprint
-		    "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))
-                (channel
-                 (name 'guix)
-                 (url "https://git.savannah.gnu.org/git/guix.git")
-                 (commit "a1cdcd2cabb59e731349b13777a044b48ef4f844")
-		 (introduction
-		  (make-channel-introduction
-		   "9edb3f66fd807b096b48283debdcddccfea34bad"
-		   (openpgp-fingerprint
-		    "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA"))))))
-         (inferior
-          (inferior-for-channels channels)))
-      (first (lookup-inferior-packages inferior "linux" "6.17.7"))))
+   (kernel linux)
    (firmware (list linux-firmware))
 
    ;; Add the 'net.ifnames' argument to prevent network interfaces
